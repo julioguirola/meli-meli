@@ -1,0 +1,997 @@
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Para ti — Una web romántica</title>
+        <meta
+            name="description"
+            content="Una web dedicada con amor. Galería interactiva y pequeños detalles románticos."
+        />
+
+        <style>
+            /* Reset ligero */
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+            html,
+            body {
+                height: 100%;
+                font-family:
+                    Inter,
+                    system-ui,
+                    -apple-system,
+                    "Segoe UI",
+                    Roboto,
+                    "Helvetica Neue",
+                    Arial;
+                background: linear-gradient(
+                    180deg,
+                    #fffaf0 0%,
+                    #ffeef7 55%,
+                    #fff1f0 100%
+                );
+                color: #2b2b2b;
+            }
+            a {
+                color: inherit;
+                text-decoration: none;
+            }
+
+            /* Contenedor principal */
+            .wrap {
+                max-width: 1100px;
+                margin: 32px auto;
+                padding: 24px;
+                background: rgba(255, 255, 255, 0.8);
+                border-radius: 20px;
+                box-shadow: 0 8px 30px rgba(5, 5, 10, 0.08);
+            }
+
+            header {
+                display: flex;
+                gap: 18px;
+                align-items: center;
+                margin-bottom: 18px;
+            }
+            .logo {
+                width: 84px;
+                height: 84px;
+                border-radius: 50%;
+                background: radial-gradient(
+                    circle at 30% 20%,
+                    #ffb6d5,
+                    #ff9ec9
+                );
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 36px;
+                color: white;
+                box-shadow: 0 6px 18px rgba(255, 90, 160, 0.2);
+                transform: rotate(-4deg);
+            }
+            h1 {
+                font-size: 28px;
+                line-height: 1.05;
+            }
+            p.lead {
+                color: #6a4354;
+                margin-top: 6px;
+            }
+
+            /* Controles */
+            .controls {
+                margin-left: auto;
+                display: flex;
+                gap: 10px;
+                align-items: center;
+            }
+            .btn {
+                border: 0;
+                background: #ff6fa3;
+                color: white;
+                padding: 10px 14px;
+                border-radius: 12px;
+                cursor: pointer;
+                font-weight: 600;
+                box-shadow: 0 6px 12px rgba(255, 111, 163, 0.18);
+            }
+            .btn.secondary {
+                background: transparent;
+                border: 1px solid #ff9ec9;
+                color: #6a4354;
+            }
+            .btn.ghost {
+                background: rgba(255, 255, 255, 0.5);
+            }
+
+            /* Hero / mensaje grande */
+            .hero {
+                text-align: center;
+                padding: 18px 8px 28px 8px;
+            }
+            .hero h2 {
+                font-size: 22px;
+                color: #8a2b49;
+                margin-bottom: 6px;
+            }
+            .hero .subtitle {
+                color: #7b4a5a;
+            }
+
+            /* Galería grid */
+            .gallery {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 12px;
+                margin: 18px 0;
+            }
+            @media (max-width: 900px) {
+                .gallery {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+            }
+            @media (max-width: 560px) {
+                .gallery {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+            .card {
+                position: relative;
+                overflow: hidden;
+                border-radius: 16px;
+                cursor: pointer;
+                background: #f8eef2;
+            }
+            .card img {
+                width: 100%;
+                height: 220px;
+                object-fit: cover;
+                display: block;
+                transition: transform 400ms ease;
+            }
+            .card:hover img {
+                transform: scale(1.06) rotate(-0.5deg);
+            }
+            .caption {
+                position: absolute;
+                left: 10px;
+                bottom: 10px;
+                background: linear-gradient(
+                    90deg,
+                    rgba(0, 0, 0, 0.45),
+                    rgba(0, 0, 0, 0.15)
+                );
+                color: #fff;
+                padding: 8px 12px;
+                border-radius: 12px;
+                font-size: 14px;
+                backdrop-filter: blur(4px);
+            }
+
+            /* Lightbox */
+            .lightbox {
+                position: fixed;
+                inset: 0;
+                background: rgba(10, 6, 8, 0.7);
+                display: none;
+                align-items: center;
+                justify-content: center;
+                z-index: 1200;
+                padding: 20px;
+            }
+            .lightbox.open {
+                display: flex;
+            }
+            .lightbox .inner {
+                max-width: 1000px;
+                width: 100%;
+                max-height: 92vh;
+                border-radius: 14px;
+                background: linear-gradient(180deg, #fff, #fff5f8);
+                padding: 20px;
+                display: flex;
+                gap: 16px;
+                align-items: center;
+            }
+            .lightbox img {
+                max-width: 65%;
+                max-height: 80vh;
+                object-fit: contain;
+                border-radius: 10px;
+            }
+            .meta {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .meta h3 {
+                font-size: 20px;
+                color: #8a2b49;
+            }
+            .meta p {
+                color: #6a4354;
+                line-height: 1.4;
+            }
+            .meta .nav {
+                margin-top: auto;
+                display: flex;
+                gap: 8px;
+                align-items: center;
+            }
+            .icon-btn {
+                background: transparent;
+                border: 1px solid rgba(138, 43, 73, 0.12);
+                padding: 8px 10px;
+                border-radius: 10px;
+                cursor: pointer;
+            }
+
+            /* Slideshow */
+            .slideshow {
+                position: relative;
+                margin-top: 12px;
+                border-radius: 14px;
+                overflow: hidden;
+                height: 300px;
+                background: linear-gradient(90deg, #fff0f4, #fff7f0);
+            }
+            .slide {
+                position: absolute;
+                inset: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: opacity 600ms ease;
+                opacity: 0;
+            }
+            .slide.active {
+                opacity: 1;
+            }
+            .slide img {
+                max-height: 90%;
+                max-width: 90%;
+                object-fit: contain;
+                border-radius: 10px;
+            }
+
+            .footer {
+                margin-top: 18px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+            .small {
+                font-size: 13px;
+                color: #6b4a58;
+            }
+
+            /* Floating heart button */
+            .heart-btn {
+                position: fixed;
+                right: 18px;
+                bottom: 18px;
+                width: 64px;
+                height: 64px;
+                border-radius: 50%;
+                background: linear-gradient(180deg, #ff6fa3, #ff3f85);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 28px;
+                border: 0;
+                box-shadow: 0 12px 30px rgba(255, 80, 140, 0.25);
+                cursor: pointer;
+                z-index: 1300;
+            }
+
+            /* Typing animation */
+            .typed {
+                color: #7b3f52;
+                font-weight: 700;
+                font-size: 16px;
+            }
+
+            /* Small helpers */
+            .muted {
+                color: #8b6a76;
+                font-size: 13px;
+            }
+
+            /* Accessibility focus */
+            :focus {
+                outline: 3px solid rgba(255, 111, 163, 0.22);
+                outline-offset: 2px;
+            }
+
+            /* Cute heart confetti canvas overlay */
+            #confettiCanvas {
+                position: fixed;
+                pointer-events: none;
+                inset: 0;
+                z-index: 1400;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="wrap" role="main">
+            <header>
+                <div class="logo" aria-hidden="true">❤</div>
+                <div>
+                    <h1>Para [Nombre de tu pareja]</h1>
+                    <p class="lead">
+                        Un pequeño rincón en la web donde guardo nuestros
+                        momentos favoritos ✨
+                    </p>
+                    <div class="muted">
+                        18 recuerdos — editables y listos para tu toque personal
+                    </div>
+                </div>
+
+                <div class="controls" role="region" aria-label="Controles">
+                    <button
+                        id="playSlideshow"
+                        class="btn secondary"
+                        title="Iniciar pase de fotos"
+                    >
+                        ▶ Pase
+                    </button>
+                    <button
+                        id="toggleMusic"
+                        class="btn ghost"
+                        title="Reproducir/pausar música"
+                    >
+                        🎵 Música
+                    </button>
+                    <button
+                        id="downloadBtn"
+                        class="btn"
+                        title="Descargar esta página"
+                    >
+                        💾 Descargar
+                    </button>
+                </div>
+            </header>
+
+            <section class="hero" aria-labelledby="hero-title">
+                <h2 id="hero-title">Cada foto, una razón más para sonreír</h2>
+                <div class="subtitle">
+                    Pulsa una foto para verla mejor, escribe una dedicatoria
+                    para cada imagen o inicia el pase para verla en modo
+                    celebración.
+                </div>
+            </section>
+
+            <!-- GALERÍA: Reemplaza las rutas si tus fotos tienen otros nombres. -->
+            <section class="gallery" id="gallery" aria-label="Galería de fotos">
+                <!-- 18 tarjetas: modifica el atributo data-caption para personalizar el texto -->
+                <!-- Asegúrate de crear carpeta "photos" con 01.jpg .. 18.jpg o cambia la ruta aquí -->
+                <!-- Ejemplo de caption: data-caption="Nuestro viaje a la playa — verano 2023" -->
+                <!-- Puedes cambiar también el alt en cada imagen para mejorar accesibilidad. -->
+                <!-- Tarjetas generadas manualmente para permitir edición fácil -->
+                <div
+                    class="card"
+                    tabindex="0"
+                    data-index="0"
+                    data-caption="Mi sonrisa contigo."
+                >
+                    <img src="photos/01.jpg" alt="Foto 1" loading="lazy" />
+                    <div class="caption">Mi sonrisa contigo</div>
+                </div>
+
+                <div
+                    class="card"
+                    tabindex="0"
+                    data-index="1"
+                    data-caption="Recordando esa tarde dorada."
+                >
+                    <img src="photos/02.jpg" alt="Foto 2" loading="lazy" />
+                    <div class="caption">Tarde dorada</div>
+                </div>
+
+                <div
+                    class="card"
+                    tabindex="0"
+                    data-index="2"
+                    data-caption="Nuestro primer café juntos."
+                >
+                    <img src="photos/03.jpg" alt="Foto 3" loading="lazy" />
+                    <div class="caption">El primer café</div>
+                </div>
+
+                <div
+                    class="card"
+                    tabindex="0"
+                    data-index="3"
+                    data-caption="Riendo a carcajadas."
+                >
+                    <img src="photos/04.jpg" alt="Foto 4" loading="lazy" />
+                    <div class="caption">Risas</div>
+                </div>
+
+                <div
+                    class="card"
+                    tabindex="0"
+                    data-index="4"
+                    data-caption="Bajo las estrellas."
+                >
+                    <img src="photos/05.jpg" alt="Foto 5" loading="lazy" />
+                    <div class="caption">Bajo las estrellas</div>
+                </div>
+
+                <div
+                    class="card"
+                    tabindex="0"
+                    data-index="5"
+                    data-caption="Abrazo que lo cura todo."
+                >
+                    <img src="photos/06.jpg" alt="Foto 6" loading="lazy" />
+                    <div class="caption">Abrazo que cura</div>
+                </div>
+
+                <div
+                    class="card"
+                    tabindex="0"
+                    data-index="6"
+                    data-caption="Nuestros pasos sincronizados."
+                >
+                    <img src="photos/07.jpg" alt="Foto 7" loading="lazy" />
+                    <div class="caption">Pasos sincronizados</div>
+                </div>
+
+                <div
+                    class="card"
+                    tabindex="0"
+                    data-index="7"
+                    data-caption="Pequeños detalles, grandes recuerdos."
+                >
+                    <img src="photos/08.jpg" alt="Foto 8" loading="lazy" />
+                    <div class="caption">Pequeños detalles</div>
+                </div>
+
+                <div
+                    class="card"
+                    tabindex="0"
+                    data-index="8"
+                    data-caption="Sonrisa que me derrite."
+                >
+                    <img src="photos/09.jpg" alt="Foto 9" loading="lazy" />
+                    <div class="caption">Tu sonrisa</div>
+                </div>
+
+                <div
+                    class="card"
+                    tabindex="0"
+                    data-index="9"
+                    data-caption="Día de lluvia transformado en magia."
+                >
+                    <img src="photos/10.jpg" alt="Foto 10" loading="lazy" />
+                    <div class="caption">Lluvia y magia</div>
+                </div>
+
+                <div
+                    class="card"
+                    tabindex="0"
+                    data-index="10"
+                    data-caption="Ese viaje que nunca olvidaremos."
+                >
+                    <img src="photos/11.jpg" alt="Foto 11" loading="lazy" />
+                    <div class="caption">Viaje inolvidable</div>
+                </div>
+
+                <div
+                    class="card"
+                    tabindex="0"
+                    data-index="11"
+                    data-caption="Cocinando (y probando demasiado)."
+                >
+                    <img src="photos/12.jpg" alt="Foto 12" loading="lazy" />
+                    <div class="caption">Cocina y risas</div>
+                </div>
+
+                <div
+                    class="card"
+                    tabindex="0"
+                    data-index="12"
+                    data-caption="Miradas que hablan."
+                >
+                    <img src="photos/13.jpg" alt="Foto 13" loading="lazy" />
+                    <div class="caption">Miradas</div>
+                </div>
+
+                <div
+                    class="card"
+                    tabindex="0"
+                    data-index="13"
+                    data-caption="Pequeños rituales de cada día."
+                >
+                    <img src="photos/14.jpg" alt="Foto 14" loading="lazy" />
+                    <div class="caption">Rituales</div>
+                </div>
+
+                <div
+                    class="card"
+                    tabindex="0"
+                    data-index="14"
+                    data-caption="Ese atardecer perfecto."
+                >
+                    <img src="photos/15.jpg" alt="Foto 15" loading="lazy" />
+                    <div class="caption">Atardecer</div>
+                </div>
+
+                <div
+                    class="card"
+                    tabindex="0"
+                    data-index="15"
+                    data-caption="Bromas que solo nosotros entendemos."
+                >
+                    <img src="photos/16.jpg" alt="Foto 16" loading="lazy" />
+                    <div class="caption">Bromas internas</div>
+                </div>
+
+                <div
+                    class="card"
+                    tabindex="0"
+                    data-index="16"
+                    data-caption="Nuestro rincón favorito."
+                >
+                    <img src="photos/17.jpg" alt="Foto 17" loading="lazy" />
+                    <div class="caption">Nuestro rincón</div>
+                </div>
+
+                <div
+                    class="card"
+                    tabindex="0"
+                    data-index="17"
+                    data-caption="Y todas las demás razones para amarte."
+                >
+                    <img src="photos/18.jpg" alt="Foto 18" loading="lazy" />
+                    <div class="caption">Te amo</div>
+                </div>
+            </section>
+
+            <!-- Lightbox / vista ampliada -->
+            <div
+                id="lightbox"
+                class="lightbox"
+                role="dialog"
+                aria-modal="true"
+                aria-hidden="true"
+            >
+                <div class="inner" role="document">
+                    <img id="lightboxImg" src="" alt="" />
+                    <div class="meta">
+                        <h3 id="lightboxTitle">Título</h3>
+                        <p id="lightboxDesc">Descripción</p>
+
+                        <div>
+                            <label class="muted"
+                                >Escribe una dedicatoria (se guarda
+                                localmente):</label
+                            >
+                            <textarea
+                                id="editCaption"
+                                rows="3"
+                                style="
+                                    width: 100%;
+                                    padding: 8px;
+                                    border-radius: 8px;
+                                    border: 1px solid #f0d6df;
+                                "
+                            ></textarea>
+                        </div>
+
+                        <div class="nav">
+                            <button
+                                id="prevBtn"
+                                class="icon-btn"
+                                title="Anterior"
+                            >
+                                ◀
+                            </button>
+                            <button
+                                id="nextBtn"
+                                class="icon-btn"
+                                title="Siguiente"
+                            >
+                                ▶
+                            </button>
+                            <button
+                                id="closeBtn"
+                                class="icon-btn"
+                                title="Cerrar"
+                            >
+                                ✕
+                            </button>
+                            <button
+                                id="heartShare"
+                                class="icon-btn"
+                                title="Lanzar confeti de corazones"
+                            >
+                                ❤
+                            </button>
+                            <span style="margin-left: auto" class="muted"
+                                >Presiona ← y → para navegar</span
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pase de fotos -->
+            <div
+                class="slideshow"
+                id="slideshow"
+                aria-hidden="true"
+                style="display: none"
+            >
+                <!-- Slides se inyectan por JS -->
+            </div>
+
+            <div class="footer">
+                <div class="small">
+                    Hecho con ♥ — Guarda esta página, reemplaza las
+                    fotos/leyendas y será sólo tuya.
+                </div>
+                <div class="small muted typed" id="typed">
+                    Eres mi aventura favorita…
+                </div>
+            </div>
+        </div>
+
+        <!-- Confetti canvas -->
+        <canvas id="confettiCanvas" aria-hidden="true"></canvas>
+
+        <!-- Floating heart -->
+        <button class="heart-btn" id="celebrateBtn" aria-label="Celebrar">
+            ❤
+        </button>
+
+        <!-- Audio: Cambia src a la canción que prefieras. No se reproduce automáticamente (por accesibilidad). -->
+        <audio id="bgMusic" loop preload="none">
+            <!-- Reemplaza 'audio/amor.mp3' con tu archivo de audio si quieres -->
+            <source src="audio/love-song.mp3" type="audio/mpeg" />
+            Tu navegador no soporta audio.
+        </audio>
+
+        <script>
+            // --- Config inicial ---
+            const gallery = document.getElementById("gallery");
+            const cards = Array.from(document.querySelectorAll(".card"));
+            const lightbox = document.getElementById("lightbox");
+            const lbImg = document.getElementById("lightboxImg");
+            const lbTitle = document.getElementById("lightboxTitle");
+            const lbDesc = document.getElementById("lightboxDesc");
+            const editCaption = document.getElementById("editCaption");
+            const closeBtn = document.getElementById("closeBtn");
+            const prevBtn = document.getElementById("prevBtn");
+            const nextBtn = document.getElementById("nextBtn");
+            const heartShare = document.getElementById("heartShare");
+            const typedEl = document.getElementById("typed");
+            const playSlideshow = document.getElementById("playSlideshow");
+            const slideshow = document.getElementById("slideshow");
+            const toggleMusic = document.getElementById("toggleMusic");
+            const bgMusic = document.getElementById("bgMusic");
+            const celebrateBtn = document.getElementById("celebrateBtn");
+            const downloadBtn = document.getElementById("downloadBtn");
+
+            let currentIndex = 0;
+            const savedCaptionsKey = "dedicatoriasFotos_v1";
+            const savedCaptions = JSON.parse(
+                localStorage.getItem(savedCaptionsKey) || "{}",
+            );
+
+            // Inicializa captions desde data-caption o desde localStorage
+            cards.forEach((card) => {
+                const i = card.dataset.index;
+                const captionEl = card.querySelector(".caption");
+                const defaultCap = card.dataset.caption || "";
+                captionEl.textContent = savedCaptions[i] || defaultCap;
+            });
+
+            // Abrir lightbox
+            function openLightbox(index) {
+                const card = cards[index];
+                if (!card) return;
+                currentIndex = index;
+                const img = card.querySelector("img");
+                lbImg.src = img.src;
+                lbImg.alt = img.alt || "Foto ampliada";
+                lbTitle.textContent =
+                    card.querySelector(".caption").textContent || "Recuerdo";
+                lbDesc.textContent =
+                    "Pulsa las flechas para ver más o escribe una dedicatoria abajo.";
+                editCaption.value =
+                    card.querySelector(".caption").textContent || "";
+                lightbox.classList.add("open");
+                lightbox.setAttribute("aria-hidden", "false");
+                editCaption.focus();
+            }
+
+            // Cerrar lightbox
+            function closeLightbox() {
+                lightbox.classList.remove("open");
+                lightbox.setAttribute("aria-hidden", "true");
+            }
+
+            // Navegación
+            function showNext() {
+                openLightbox((currentIndex + 1) % cards.length);
+            }
+            function showPrev() {
+                openLightbox((currentIndex - 1 + cards.length) % cards.length);
+            }
+
+            // Eventos en tarjetas
+            cards.forEach((card, idx) => {
+                card.addEventListener("click", () => openLightbox(idx));
+                card.addEventListener("keydown", (e) => {
+                    if (e.key === "Enter" || e.key === " ") openLightbox(idx);
+                });
+            });
+
+            closeBtn.addEventListener("click", closeLightbox);
+            nextBtn.addEventListener("click", showNext);
+            prevBtn.addEventListener("click", showPrev);
+
+            // Guardar dedicatoria localmente y actualizar tarjeta
+            editCaption.addEventListener("input", (e) => {
+                const text = e.target.value;
+                savedCaptions[currentIndex] = text;
+                localStorage.setItem(
+                    savedCaptionsKey,
+                    JSON.stringify(savedCaptions),
+                );
+                const cardCaption =
+                    cards[currentIndex].querySelector(".caption");
+                cardCaption.textContent = text;
+                lbTitle.textContent = text || "Recuerdo";
+            });
+
+            // Teclado para lightbox
+            document.addEventListener("keydown", (e) => {
+                if (lightbox.classList.contains("open")) {
+                    if (e.key === "ArrowRight") showNext();
+                    if (e.key === "ArrowLeft") showPrev();
+                    if (e.key === "Escape") closeLightbox();
+                }
+            });
+
+            // Slideshow simple
+            let slideTimer = null;
+            function buildSlideshow() {
+                slideshow.innerHTML = "";
+                cards.forEach((card, idx) => {
+                    const img = document.createElement("img");
+                    img.src = card.querySelector("img").src;
+                    const slide = document.createElement("div");
+                    slide.className = "slide";
+                    if (idx === 0) slide.classList.add("active");
+                    slide.appendChild(img);
+                    slideshow.appendChild(slide);
+                });
+            }
+
+            function startSlideshow() {
+                if (slideTimer) return;
+                buildSlideshow();
+                slideshow.style.display = "block";
+                let idx = 0;
+                const slides = Array.from(slideshow.children);
+                slideTimer = setInterval(() => {
+                    slides[idx].classList.remove("active");
+                    idx = (idx + 1) % slides.length;
+                    slides[idx].classList.add("active");
+                }, 3000);
+                playSlideshow.textContent = "■ Parar";
+            }
+
+            function stopSlideshow() {
+                clearInterval(slideTimer);
+                slideTimer = null;
+                slideshow.style.display = "none";
+                playSlideshow.textContent = "▶ Pase";
+            }
+
+            playSlideshow.addEventListener("click", () => {
+                if (slideTimer) stopSlideshow();
+                else startSlideshow();
+            });
+
+            // Música toggle (no autoplay)
+            toggleMusic.addEventListener("click", () => {
+                if (bgMusic.paused) {
+                    bgMusic.play().catch(() => {
+                        alert(
+                            'Tu navegador requiere interacción antes de reproducir música. Pulsa "Música" nuevamente.',
+                        );
+                    });
+                    toggleMusic.textContent = "⏸ Música";
+                } else {
+                    bgMusic.pause();
+                    toggleMusic.textContent = "🎵 Música";
+                }
+            });
+
+            // Confeti de corazones (canvas)
+            const canvas = document.getElementById("confettiCanvas");
+            const ctx = canvas.getContext("2d");
+            let W = (canvas.width = innerWidth);
+            let H = (canvas.height = innerHeight);
+            window.addEventListener("resize", () => {
+                W = canvas.width = innerWidth;
+                H = canvas.height = innerHeight;
+            });
+
+            function random(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            function Heart(x, y, dx, dy, size, life, rot) {
+                this.x = x;
+                this.y = y;
+                this.dx = dx;
+                this.dy = dy;
+                this.size = size;
+                this.life = life;
+                this.ttl = life;
+                this.rot = rot;
+            }
+            Heart.prototype.draw = function () {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rot);
+                ctx.beginPath();
+                const s = this.size;
+                ctx.moveTo(0, -s / 2);
+                ctx.bezierCurveTo(-s, -s, -s, s / 3, 0, s);
+                ctx.bezierCurveTo(s, s / 3, s, -s, 0, -s / 2);
+                ctx.fillStyle = `rgba(255,${Math.floor(80 + 120 * (this.ttl / this.life))},${Math.floor(120 + 80 * (this.ttl / this.life))},${Math.max(0, this.ttl / this.life)})`;
+                ctx.fill();
+                ctx.restore();
+            };
+
+            let hearts = [];
+            function launchHearts(count = 25) {
+                for (let i = 0; i < count; i++) {
+                    hearts.push(
+                        new Heart(
+                            random(W * 0.2, W * 0.8),
+                            random(H * 0.1, H * 0.6),
+                            random(-1.5, 1.5),
+                            random(-1, 2),
+                            random(8, 20),
+                            random(60, 140),
+                            random(-0.6, 0.6),
+                        ),
+                    );
+                }
+                if (!confettiRunning) runConfetti();
+            }
+
+            let confettiRunning = false;
+            function runConfetti() {
+                confettiRunning = true;
+                function step() {
+                    ctx.clearRect(0, 0, W, H);
+                    for (let i = hearts.length - 1; i >= 0; i--) {
+                        const h = hearts[i];
+                        h.x += h.dx;
+                        h.y += h.dy;
+                        h.dy += 0.03; // gravedad suave
+                        h.rot += 0.02;
+                        h.ttl--;
+                        h.draw();
+                        if (h.ttl <= 0 || h.y > H + 50) hearts.splice(i, 1);
+                    }
+                    if (hearts.length > 0) requestAnimationFrame(step);
+                    else {
+                        confettiRunning = false;
+                    }
+                }
+                requestAnimationFrame(step);
+            }
+
+            heartShare.addEventListener("click", () => launchHearts(40));
+            celebrateBtn.addEventListener("click", () => {
+                launchHearts(80);
+                document.body.animate(
+                    [
+                        { filter: "saturate(1)" },
+                        { filter: "saturate(1.1)" },
+                        { filter: "saturate(1)" },
+                    ],
+                    { duration: 900 },
+                );
+            });
+
+            // Typed effect (mensaje en el footer)
+            const phrases = [
+                "Eres mi aventura favorita…",
+                "Gracias por cada momento.",
+                "Contigo todo es mejor.",
+                "Hoy, mañana y siempre.",
+            ];
+            let ti = 0,
+                pi = 0;
+            function typeLoop() {
+                const p = phrases[pi];
+                typedEl.textContent = p.slice(0, ti);
+                ti++;
+                if (ti > p.length + 20) {
+                    ti = 0;
+                    pi = (pi + 1) % phrases.length;
+                    setTimeout(typeLoop, 400);
+                } else setTimeout(typeLoop, 120);
+            }
+            typeLoop();
+
+            // Descargar la página como HTML (genera un archivo con el HTML actual)
+            downloadBtn.addEventListener("click", () => {
+                const html =
+                    "<!doctype html>\\n" + document.documentElement.outerHTML;
+                const blob = new Blob([html], {
+                    type: "text/html;charset=utf-8",
+                });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "web_para_ti.html";
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+            });
+
+            // Cerrar lightbox al clicar fuera
+            lightbox.addEventListener("click", (e) => {
+                if (e.target === lightbox) closeLightbox();
+            });
+
+            // Inicializar: si el usuario no tiene imágenes, las tarjetas mostrarán alt vacío.
+            // Además: prevenir que la tecla space haga scroll mientras lightbox está abierto
+            window.addEventListener("keydown", (e) => {
+                if (e.code === "Space" && lightbox.classList.contains("open"))
+                    e.preventDefault();
+            });
+
+            // Pequeña mejora: comprueba si las imágenes existen visualmente (no hace fetch); si no se cargan, muestra un placeholder suave
+            cards.forEach((card) => {
+                const img = card.querySelector("img");
+                img.onerror = () => {
+                    img.src =
+                        "data:image/svg+xml;utf8," +
+                        encodeURIComponent(
+                            '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><rect width="100%" height="100%" fill="#ffeef4"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#b66" font-size="28">Imagen no encontrada</text></svg>',
+                        );
+                };
+            });
+
+            // A11y: focus trap simple para lightbox (mantener tab dentro)
+            document.addEventListener(
+                "focus",
+                function (e) {
+                    if (
+                        lightbox.classList.contains("open") &&
+                        !lightbox.contains(e.target)
+                    ) {
+                        e.stopPropagation();
+                        closeBtn.focus();
+                    }
+                },
+                true,
+            );
+
+            // Guardar automáticamente cuando se cierra (ya guardamos en input)
+            // FIN del script
+        </script>
+    </body>
+</html>
